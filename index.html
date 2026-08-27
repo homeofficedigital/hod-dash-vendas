@@ -511,24 +511,34 @@ function rankingEquipe(lista, mapaDiario){
   return lista.map(nome=>[nome, totalPessoa(nome, mapaDiario)]).sort((a,b)=>b[1]-a[1]);
 }
 
-// ── Ritmo do mês corrente (dias restantes / necessário por dia) ──
-// Independente dos filtros de período e de dias: sempre calcula sobre o mês inteiro em que a
-// "data de atualização" cai — é só uma informação de referência, não um filtro.
-function calcRitmo(){
-  const inputVal = $('dataAtualizacao').value; // "YYYY-MM-DD"
+// ── Ritmo do mês em foco (dias restantes / necessário por dia) ──
+// O "mês em foco" é o mais recente entre os marcados no filtro de período —
+// ex.: se só Julho está marcado, o ritmo é calculado sobre Julho (mês fechado).
+// A "data de atualização" continua sendo só a referência do que é "hoje".
+function mesFocoAtual(){
+  if(!st.meses.size) return -1;
+  return [...st.meses].sort((a,b)=>b-a)[0];
+}
+function hojeInfo(){
+  const inputVal = $('dataAtualizacao').value;
   if(!inputVal) return null;
-  const [anoStr, mesStr, diaStr] = inputVal.split('-');
-  const anoRef = parseInt(anoStr,10), mesRef = parseInt(mesStr,10), diaRef = parseInt(diaStr,10);
+  const [ano, mes, dia] = inputVal.split('-').map(Number);
+  return { ano, mes, dia };
+}
+function compararMes(anoA,mesA, anoB,mesB){
+  if(anoA!==anoB) return anoA-anoB;
+  return mesA-mesB;
+}
 
-  const idx = DADOS.meses.findIndex(label=>{
-    const p = parseMesLabel(label);
-    return p.ano===anoRef && p.mes===mesRef;
-  });
-  if(idx === -1) return { semReferencia:true };
+function calcRitmo(){
+  const hoje = hojeInfo();
+  if(!hoje) return null;
+  const idx = mesFocoAtual();
+  if(idx === -1) return null;
 
-  const diasNoMes = ultimoDiaDoMes(anoRef, mesRef);
-  const diasDecorridos = Math.min(Math.max(diaRef,1), diasNoMes); // inclui o dia corrente
-  const diasRestantes = diasNoMes - diasDecorridos + 1; // inclusive hoje
+  const { ano, mes } = parseMesLabel(DADOS.meses[idx]);
+  const diasNoMes = ultimoDiaDoMes(ano, mes);
+  const cmp = compararMes(ano, mes, hoje.ano, hoje.mes);
 
   const totalMes = DADOS.closers.reduce((s,n)=>{
     const dias = (DADOS.diarioCloser[n]||[])[idx] || {};
@@ -536,31 +546,56 @@ function calcRitmo(){
   },0);
   const metaMes = DADOS.metas[idx];
   const faltaMes = metaMes - totalMes;
-  const necessarioPorDia = faltaMes > 0.01 ? faltaMes/diasRestantes : 0;
 
-  return { idx, mesLabel:DADOS.meses[idx], diasNoMes, diasDecorridos, diasRestantes, totalMes, metaMes, faltaMes, necessarioPorDia };
+  if(cmp === 0){
+    // mês corrente: ainda em andamento
+    const diasDecorridos = Math.min(Math.max(hoje.dia,1), diasNoMes);
+    const diasRestantes = diasNoMes - diasDecorridos + 1; // inclusive hoje
+    const necessarioPorDia = faltaMes > 0.01 ? faltaMes/diasRestantes : 0;
+    return { status:'corrente', idx, mesLabel:DADOS.meses[idx], diasNoMes, diasDecorridos, diasRestantes, totalMes, metaMes, faltaMes, necessarioPorDia };
+  }
+  if(cmp < 0){
+    // mês fechado: já passou por completo
+    return { status:'fechado', idx, mesLabel:DADOS.meses[idx], diasNoMes, totalMes, metaMes, faltaMes };
+  }
+  // mês futuro (fora dos dados ainda)
+  return { status:'futuro', idx, mesLabel:DADOS.meses[idx], diasNoMes, totalMes, metaMes, faltaMes };
 }
 
-// ── Quanto fizemos ontem: dia anterior à data de atualização ──
+// ── Quanto fizemos ontem (mês corrente) / Último dia registrado (mês fechado) ──
 function calcOntem(){
-  const inputVal = $('dataAtualizacao').value;
-  if(!inputVal) return null;
-  const [anoStr, mesStr, diaStr] = inputVal.split('-');
-  const dataRef = new Date(parseInt(anoStr,10), parseInt(mesStr,10)-1, parseInt(diaStr,10));
-  const ontem = new Date(dataRef);
-  ontem.setDate(ontem.getDate()-1);
-  const anoOntem = ontem.getFullYear(), mesOntem = ontem.getMonth()+1, diaOntem = ontem.getDate();
+  const r = calcRitmo();
+  if(!r) return null;
 
-  const idx = DADOS.meses.findIndex(label=>{
-    const p = parseMesLabel(label);
-    return p.ano===anoOntem && p.mes===mesOntem;
-  });
-  if(idx === -1) return { semReferencia:true, ontem };
+  if(r.status === 'corrente'){
+    const hoje = hojeInfo();
+    const dataRef = new Date(hoje.ano, hoje.mes-1, hoje.dia);
+    const ontem = new Date(dataRef);
+    ontem.setDate(ontem.getDate()-1);
+    const anoOntem = ontem.getFullYear(), mesOntem = ontem.getMonth()+1, diaOntem = ontem.getDate();
 
-  const valor = DADOS.diarioTotal[idx] ? DADOS.diarioTotal[idx][String(diaOntem)] : undefined;
-  if(valor === undefined) return { semDado:true, ontem, dia:diaOntem, mesLabel: DADOS.meses[idx] };
+    const idx = DADOS.meses.findIndex(label=>{
+      const p = parseMesLabel(label);
+      return p.ano===anoOntem && p.mes===mesOntem;
+    });
+    if(idx === -1) return { semReferencia:true, status:'corrente' };
 
-  return { idx, mesLabel: DADOS.meses[idx], dia: diaOntem, valor, ontem };
+    const valor = DADOS.diarioTotal[idx] ? DADOS.diarioTotal[idx][String(diaOntem)] : undefined;
+    if(valor === undefined) return { semDado:true, dia:diaOntem, mesLabel: DADOS.meses[idx], status:'corrente' };
+
+    return { idx, mesLabel: DADOS.meses[idx], dia: diaOntem, valor, status:'corrente' };
+  }
+
+  if(r.status === 'fechado'){
+    // Mês já fechado: mostra o último dia com venda registrada nele, não "ontem"
+    const dias = Object.keys(DADOS.diarioTotal[r.idx] || {}).map(Number);
+    if(!dias.length) return { semDado:true, mesLabel:r.mesLabel, status:'fechado' };
+    const ultimoDia = Math.max(...dias);
+    const valor = DADOS.diarioTotal[r.idx][String(ultimoDia)];
+    return { idx:r.idx, mesLabel:r.mesLabel, dia:ultimoDia, valor, status:'fechado' };
+  }
+
+  return { semReferencia:true, status:r.status };
 }
 
 // ── Slats (barras de ranking com posição) — cada linha guarda o nome em
@@ -689,20 +724,42 @@ function render(){
 function renderRitmo(){
   const bloco = $('blocoRitmo');
   const r = calcRitmo();
+  const rotuloDias = document.querySelector('#blocoRitmo .k-dias .rotulo');
+  const rotuloNecessario = document.querySelector('#blocoRitmo .k-necessario .rotulo');
+  const rotuloOntem = document.querySelector('#blocoRitmo .k-ontem .rotulo');
 
   if(!r){
     bloco.style.display = 'none';
-  } else if(r.semReferencia){
+  } else if(r.status === 'futuro'){
     bloco.style.display = 'grid';
+    rotuloDias.textContent = 'Dias restantes para a meta';
     $('kDias').textContent = '—';
-    $('kDiasDet').textContent = 'data fora dos meses disponíveis';
+    $('kDiasDet').textContent = `${r.mesLabel} ainda não começou`;
+    rotuloNecessario.textContent = 'Necessário por dia';
     $('kNecessario').textContent = '—';
     $('kNecessarioDet').textContent = '';
-  } else {
+  } else if(r.status === 'fechado'){
     bloco.style.display = 'grid';
+    rotuloDias.textContent = 'Dias restantes para a meta';
+    $('kDias').textContent = 'Mês encerrado';
+    $('kDiasDet').textContent = `${r.mesLabel} já fechou (${r.diasNoMes} dias corridos)`;
+
+    rotuloNecessario.textContent = 'Resultado da meta';
+    if(r.faltaMes > 0.01){
+      $('kNecessario').textContent = 'Meta não batida';
+      $('kNecessarioDet').textContent = `faltaram ${fmtMoeda(r.faltaMes)} em ${r.mesLabel}`;
+    } else {
+      $('kNecessario').textContent = 'Meta batida';
+      $('kNecessarioDet').textContent = `superada em ${fmtMoeda(-r.faltaMes)} em ${r.mesLabel}`;
+    }
+  } else {
+    // mês corrente
+    bloco.style.display = 'grid';
+    rotuloDias.textContent = 'Dias restantes para a meta';
     $('kDias').textContent = `${r.diasRestantes} dia${r.diasRestantes!==1?'s':''}`;
     $('kDiasDet').textContent = `até 31 · ${r.mesLabel} (dia ${r.diasDecorridos} de ${r.diasNoMes}, hoje incluso)`;
 
+    rotuloNecessario.textContent = 'Necessário por dia';
     if(r.faltaMes > 0.01){
       $('kNecessario').textContent = fmtMoeda(r.necessarioPorDia) + '/dia';
       $('kNecessarioDet').textContent = `para bater a meta de ${r.mesLabel} nos dias restantes`;
@@ -712,18 +769,27 @@ function renderRitmo(){
     }
   }
 
-  // ── Quanto fizemos ontem ──
+  // ── Quanto fizemos ontem (mês corrente) / Último dia registrado (mês fechado) ──
   const o = calcOntem();
-  if(!o){
+  if(!o || o.semReferencia){
+    rotuloOntem.textContent = 'Quanto fizemos ontem';
     $('kOntem').textContent = '—';
-    $('kOntemDet').textContent = '';
-  } else if(o.semReferencia){
-    $('kOntem').textContent = '—';
-    $('kOntemDet').textContent = 'fora dos meses disponíveis';
+    $('kOntemDet').textContent = o ? 'fora dos meses disponíveis' : '';
+  } else if(o.status === 'fechado'){
+    rotuloOntem.textContent = 'Último dia registrado';
+    if(o.semDado){
+      $('kOntem').textContent = '—';
+      $('kOntemDet').textContent = `${o.mesLabel} · sem registro`;
+    } else {
+      $('kOntem').textContent = fmtMoeda(o.valor);
+      $('kOntemDet').textContent = `dia ${o.dia} · ${o.mesLabel} (fechamento do mês)`;
+    }
   } else if(o.semDado){
+    rotuloOntem.textContent = 'Quanto fizemos ontem';
     $('kOntem').textContent = fmtMoeda(0);
     $('kOntemDet').textContent = `dia ${o.dia||''} · ${o.mesLabel||''} · sem registro`.trim();
   } else {
+    rotuloOntem.textContent = 'Quanto fizemos ontem';
     $('kOntem').textContent = fmtMoeda(o.valor);
     $('kOntemDet').textContent = `dia ${o.dia} · ${o.mesLabel}`;
   }
@@ -737,7 +803,7 @@ function renderGraficoLinha(){
   const r = calcRitmo();
   svg.innerHTML = '';
 
-  if(!r || r.semReferencia){
+  if(!r || r.status === 'futuro'){
     $('graficoLinhaSub').textContent = 'sem mês de referência para o período informado';
     svg.innerHTML = '<text x="460" y="130" text-anchor="middle" fill="var(--tinta-2)" font-size="15" font-family="Public Sans">Informe uma data dentro dos meses disponíveis.</text>';
     return;
@@ -745,7 +811,7 @@ function renderGraficoLinha(){
 
   const dados = DADOS.diarioTotal[r.idx] || {};
   const dias = Object.keys(dados).map(Number).sort((a,b)=>a-b);
-  const ultimoDiaComDado = dias.length ? dias[dias.length-1] : r.diasDecorridos;
+  const ultimoDiaComDado = dias.length ? dias[dias.length-1] : (r.diasDecorridos || r.diasNoMes);
   $('graficoLinhaSub').textContent = `evolução dia a dia — ${r.mesLabel} (até o dia ${ultimoDiaComDado})`;
 
   if(!dias.length){
