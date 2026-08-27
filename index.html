@@ -71,6 +71,7 @@ h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:20px;l
   box-shadow:0 1px 0 rgba(38,58,33,.05);
 }
 .filtro label{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-2);margin-bottom:10px}
+.filtro + .filtro{margin-top:18px}
 .periodo-toggles{display:flex;gap:10px;flex-wrap:wrap}
 .chip-mes{
   font:inherit;font-size:14px;font-weight:600;color:var(--tinta);cursor:pointer;
@@ -80,6 +81,39 @@ h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:20px;l
 .chip-mes:hover{background:var(--mdf)}
 .chip-mes.ativo{background:var(--verde);color:var(--offwhite);border-color:var(--verde)}
 .chip-mes:focus-visible{outline:2px solid var(--verde-3);outline-offset:2px}
+.filtro-data input[type="date"]{
+  font:inherit;font-size:14px;color:var(--tinta);
+  background:var(--offwhite);border:1px solid var(--mdf-2);border-radius:8px;padding:9px 12px;
+}
+.filtro-data input[type="date"]:focus-visible{outline:2px solid var(--verde-3);outline-offset:1px}
+.dias-toggles{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--tinta);margin-top:10px}
+.dias-toggles[hidden]{display:none}
+.dias-toggles input[type="date"]{
+  font:inherit;font-size:14px;color:var(--tinta);
+  background:var(--offwhite);border:1px solid var(--mdf-2);border-radius:8px;padding:8px 10px;
+}
+.dias-toggles input[type="date"]:focus-visible{outline:2px solid var(--verde-3);outline-offset:1px}
+.botao-toggle-dias{
+  font:inherit;font-size:13.5px;font-weight:600;color:var(--verde-2);
+  background:var(--offwhite);border:1px solid var(--mdf-2);border-radius:8px;padding:9px 14px;cursor:pointer;
+}
+.botao-toggle-dias:hover{background:var(--mdf)}
+.botao-toggle-dias.ativo{background:var(--verde);color:var(--offwhite);border-color:var(--verde)}
+#limparDias{
+  font:inherit;font-size:12.5px;font-weight:600;color:var(--verde-2);
+  background:none;border:1px solid var(--mdf-2);border-radius:8px;padding:6px 12px;cursor:pointer;margin-left:4px;
+}
+#limparDias:hover{background:var(--mdf)}
+.info-atualizacao{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;
+  font-size:12.5px;color:var(--tinta-2);
+}
+.info-atualizacao label{font-weight:600}
+.info-atualizacao input[type="date"]{
+  font:inherit;font-size:13px;color:var(--tinta);
+  background:var(--branco);border:1px solid var(--mdf-2);border-radius:8px;padding:6px 10px;
+}
+.info-atualizacao input[type="date"]:focus-visible{outline:2px solid var(--verde-3);outline-offset:1px}
 .filtros-rodape{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--mdf)}
 .contagem-filtro{font-size:13px;color:var(--tinta-2)}
 .contagem-filtro strong{color:var(--tinta)}
@@ -99,6 +133,13 @@ h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:20px;l
 .kpi.k-meta::before{background:var(--tinta-2)}
 .kpi.k-falta::before{background:var(--ouro)}
 .kpi.k-atg::before{background:var(--bronze)}
+.kpi.k-media-filtro::before{background:var(--verde-3)}
+.kpi.k-reembolso::before{background:#B05C4A}
+.kpis-ritmo{margin-top:14px}
+.kpi.k-dias::before{background:var(--verde-2)}
+.kpi.k-necessario::before{background:var(--bronze)}
+.kpi.k-media::before{background:var(--verde-3)}
+.kpi.k-ontem::before{background:var(--ouro)}
 .kpi .rotulo{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tinta-2)}
 .kpi .valor{font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;margin-top:2px}
 .kpi .detalhe{font-size:12.5px;color:var(--tinta-2);margin-top:2px}
@@ -156,6 +197,16 @@ h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:20px;l
 .busca-nome-limpar.visivel{display:block}
 .busca-nome-info{font-size:12px;color:var(--tinta-2);margin-top:-8px;margin-bottom:10px}
 
+/* Gráfico de linha (variação diária) */
+#graficoLinhaWrap{position:relative}
+#graficoLinha{width:100%;height:auto;display:block}
+.tooltip{
+  position:absolute;pointer-events:none;background:var(--verde);color:var(--offwhite);
+  font-size:12.5px;padding:7px 11px;border-radius:7px;white-space:nowrap;
+  transform:translate(-50%,-115%);opacity:0;transition:opacity .12s;z-index:5;
+}
+.tooltip strong{color:#9AC98A}
+
 footer{max-width:1180px;margin:0 auto;padding:0 20px 36px;font-size:12.5px;color:var(--tinta-2)}
 </style>
 </head>
@@ -171,7 +222,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 20px 36px;font-size:12.5px;color
       </div>
     </div>
     <div class="header-periodo-resumo">
-      Meses disponíveis<br><strong id="hdrPeriodo">Junho, Julho e Agosto/26</strong>
+      Dados atualizados até<br><strong id="hdrDataAtualizacao">–</strong>
     </div>
   </div>
 </header>
@@ -184,10 +235,26 @@ footer{max-width:1180px;margin:0 auto;padding:0 20px 36px;font-size:12.5px;color
       <label>Filtro de período — selecione um ou mais meses (somam-se automaticamente)</label>
       <div class="periodo-toggles" id="toggleMeses"></div>
     </div>
+    <div class="filtro filtro-dias">
+      <button type="button" id="toggleFiltroDias" class="botao-toggle-dias">📅 Filtrar por dia</button>
+      <div class="dias-toggles" id="painelDias" hidden>
+        <span>de</span>
+        <input type="date" id="diaIniCal">
+        <span>até</span>
+        <input type="date" id="diaFimCal">
+        <button type="button" id="limparDias">Ver mês(es) completo(s)</button>
+      </div>
+    </div>
     <div class="filtros-rodape">
       <div class="contagem-filtro" id="contagem"></div>
       <button id="limpar">Selecionar todos os meses</button>
     </div>
+  </div>
+
+  <!-- Info: data da atualização (não é filtro, só referência para os cartões de ritmo) -->
+  <div class="info-atualizacao">
+    <label for="dataAtualizacao">Data da atualização (referência para "dias restantes", "necessário por dia" e "ontem")</label>
+    <input type="date" id="dataAtualizacao">
   </div>
 
   <!-- KPIs -->
@@ -196,13 +263,14 @@ footer{max-width:1180px;margin:0 auto;padding:0 20px 36px;font-size:12.5px;color
     <div class="kpi"><div class="rotulo">Total vendido</div><div class="valor" id="kTotal">–</div><div class="detalhe" id="kTotalDet"></div></div>
     <div class="kpi k-falta"><div class="rotulo">Falta para a meta</div><div class="valor" id="kFalta">–</div><div class="detalhe" id="kFaltaDet"></div></div>
     <div class="kpi k-atg"><div class="rotulo">% atingimento</div><div class="valor" id="kAtg">–</div><div class="detalhe">sobre a meta do período</div></div>
+    <div class="kpi k-media-filtro"><div class="rotulo">Média diária (no filtro)</div><div class="valor" id="kMediaFiltro">–</div><div class="detalhe" id="kMediaFiltroDet"></div></div>
   </div>
-  <div class="nota">
-    Nota: a meta é única e mensal para a operação (mesmo valor usado para Closers e SDRs). O total vendido é calculado a partir das
-    vendas concretizadas pelos closers; o total de SDRs deve ser igual, pois é a mesma venda contabilizada duas vezes — uma para o
-    closer que fechou, outra para o SDR que qualificou e encaminhou o lead.
+
+  <div class="kpis kpis-ritmo" id="blocoRitmo">
+    <div class="kpi k-dias"><div class="rotulo">Dias restantes para a meta</div><div class="valor" id="kDias">–</div><div class="detalhe" id="kDiasDet"></div></div>
+    <div class="kpi k-necessario"><div class="rotulo">Necessário por dia</div><div class="valor" id="kNecessario">–</div><div class="detalhe" id="kNecessarioDet"></div></div>
+    <div class="kpi k-ontem"><div class="rotulo">Quanto fizemos ontem</div><div class="valor" id="kOntem">–</div><div class="detalhe" id="kOntemDet"></div></div>
   </div>
-  <div class="alerta-divergencia" id="alertaDivergencia" style="display:none"></div>
 
   <!-- Rankings -->
   <section>
@@ -228,6 +296,39 @@ footer{max-width:1180px;margin:0 auto;padding:0 20px 36px;font-size:12.5px;color
     </div>
   </section>
 
+  <!-- Gráfico de linha: variação diária do mês corrente -->
+  <section>
+    <div class="sec-head"><h2>Variação diária de vendas</h2><span class="sub" id="graficoLinhaSub">evolução dia a dia do mês corrente</span></div>
+    <div class="card">
+      <div id="graficoLinhaWrap">
+        <svg id="graficoLinha" viewBox="0 0 920 260" role="img" aria-label="Gráfico de variação diária de vendas"></svg>
+        <div class="tooltip" id="tipGraficoLinha"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reembolsos -->
+  <section>
+    <div class="sec-head"><h2>Reembolsos</h2><span class="sub" id="reembolsosSub">pedidos pagos e cancelados em até 7 dias — não entram no total vendido, mas contam aqui por closer/SDR</span></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="sec-head" style="margin-bottom:8px"><h2 style="font-size:15px">Por Closer</h2></div>
+        <div class="slats" id="gReembolsoCloser"></div>
+      </div>
+      <div class="card">
+        <div class="sec-head" style="margin-bottom:8px"><h2 style="font-size:15px">Por SDR</h2></div>
+        <div class="slats" id="gReembolsoSdr"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="nota">
+    Nota: a meta é única e mensal para a operação (mesmo valor usado para Closers e SDRs). O total vendido é calculado a partir das
+    vendas concretizadas pelos closers; o total de SDRs deve ser igual, pois é a mesma venda contabilizada duas vezes — uma para o
+    closer que fechou, outra para o SDR que qualificou e encaminhou o lead.
+  </div>
+  <div class="alerta-divergencia" id="alertaDivergencia" style="display:none"></div>
+
 </main>
 
 <footer>
@@ -235,7 +336,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 20px 36px;font-size:12.5px;color
 </footer>
 
 <script>
-const DADOS = {"meses": ["Junho/26", "Julho/26", "Agosto/26"], "metas": [400000, 450000, 520000], "closers": ["ALVARO", "EDUARDO", "LARISSA", "LEANDRO PT", "LUCCAS", "LUIGI", "MISAEL", "PAULO", "RAFAEL", "RODRIGO", "TÚLIO"], "sdrs": ["BEATRIZ", "CARIOCA", "EDUARDO", "GUSTAVO", "IASMIN", "JÚLIA", "KASSIA INDICAÇÃO", "LARA", "LARISSA", "LEANDRO B.", "LEANDRO PT", "LUIGI", "MICHELLY", "MISAEL", "RAFAEL", "RENOVAÇÃO", "RODRIGO", "SEM SDR", "TÚLIO", "VITOR"], "valoresCloser": {"ALVARO": [0, 7783.2, 5385.6], "EDUARDO": [68472.31, 73510.11, 43334.5], "LARISSA": [61128.7, 43919.32, 42964.59], "LEANDRO PT": [81413.79, 114765.18, 55684.43], "LUCCAS": [31805.1, 199.99, 199.99], "LUIGI": [0, 15994.23, 18720.49], "MISAEL": [46593.37, 36455.54, 26145.1], "PAULO": [0, 17568.56, 15212.32], "RAFAEL": [32957.2, 15318.63, 1522.81], "RODRIGO": [3394.72, 2988, 22232.8], "TÚLIO": [60129.07, 56157.36, 33144.45]}, "valoresSDR": {"BEATRIZ": [80709.09, 64449.01, 30797.19], "CARIOCA": [12566.4, 13076.32, 8383.36], "EDUARDO": [900, 0, 1490], "GUSTAVO": [0, 16066.71, 41777.12], "IASMIN": [0, 0, 22531.87], "JÚLIA": [2331.7, 0, 0], "KASSIA INDICAÇÃO": [0, 1638, 0], "LARA": [0, 38867.4, 8624.32], "LARISSA": [2390.4, 0, 0], "LEANDRO B.": [52351.35, 43848.85, 28145.56], "LEANDRO PT": [8568.4, 13371.4, 7964.32], "LUIGI": [0, 2397.6, 0], "MICHELLY": [130254.82, 87147.92, 42850.25], "MISAEL": [0, 0, 500], "RAFAEL": [1192.8, 0, 0], "RENOVAÇÃO": [0, 4299.52, 0], "RODRIGO": [14759.2, 27592.8, 4800], "SEM SDR": [11976.4, 5600, 1197], "TÚLIO": [18168.73, 19866.33, 18773.6], "VITOR": [49724.97, 42650.26, 43122.09]}};
+const DADOS = {"meses": ["Junho/26", "Julho/26", "Agosto/26"], "metas": [400000, 450000, 520000], "closers": ["ALVARO", "EDUARDO", "LARISSA", "LEANDRO PT", "LUCCAS", "LUIGI", "MISAEL", "PAULO", "RAFAEL", "RODRIGO", "TÚLIO"], "sdrs": ["BEATRIZ", "CARIOCA", "EDUARDO", "GUSTAVO", "IASMIN", "JÚLIA", "KASSIA INDICAÇÃO", "LARA", "LARISSA", "LEANDRO B.", "LEANDRO PT", "LUIGI", "MICHELLY", "MISAEL", "RAFAEL", "RENOVAÇÃO", "RODRIGO", "SEM SDR", "TÚLIO", "VITOR"], "diarioCloser": {"LUCCAS": [{"1": 2480.0, "2": 199.99, "3": 8789.75, "8": 2397.6, "11": 5385.6, "15": 4783.2, "18": 393.36, "24": 1990.0, "26": 3590.4, "30": 1795.2}, {"2": 199.99}, {"2": 199.99}], "LEANDRO PT": [{"2": 990.0, "3": 3385.6, "4": 990.0, "6": 2988.0, "7": 2397.6, "8": 7978.0, "10": 3081.7, "11": 1620.0, "15": 597.0, "16": 4003.4, "17": 3397.6, "18": 7180.8, "19": 2988.0, "24": 2397.6, "25": 6578.4, "26": 3590.4, "27": 2194.8, "29": 11873.89, "30": 13181.0}, {"1": 3387.6, "2": 2980.0, "3": 5960.0, "4": 2397.6, "6": 2739.0, "7": 2988.0, "8": 4702.0, "9": 1192.8, "10": 3390.0, "11": 2397.6, "13": 2739.0, "14": 4795.2, "15": 9375.6, "17": 2738.0, "20": 8836.81, "23": 2804.1, "24": 4722.76, "27": 2390.0, "28": 1824.75, "29": 10832.0, "30": 15570.0, "31": 16002.36}, {"2": 2172.0, "3": 597.0, "6": 790.0, "8": 3590.4, "10": 3325.0, "12": 4795.2, "13": 2295.2, "14": 5744.12, "15": 2397.6, "17": 11849.35, "18": 1490.0, "19": 500.0, "20": 5728.8, "21": 6228.96, "23": 2988.0, "24": 1192.8}], "MISAEL": [{"2": 2130.81, "3": 6785.2, "4": 959.0, "6": 1795.2, "8": 1487.8, "9": 6526.32, "13": 4783.2, "18": 632.95, "19": 2988.0, "22": 3533.37, "24": 1000.0, "25": 2397.6, "26": 1900.0, "27": 500.0, "28": 1798.32, "29": 3590.4, "30": 3785.2}, {"1": 2300.0, "2": 982.0, "3": 1798.32, "6": 6783.2, "7": 3484.4, "8": 3192.9, "9": 1192.8, "10": 500.0, "15": 2397.6, "16": 2998.32, "17": 3590.4, "20": 550.0, "23": 1300.0, "25": 3590.4, "31": 1795.2}, {"1": 700.0, "3": 2500.0, "4": 2988.0, "5": 1192.8, "7": 7178.4, "10": 4846.0, "12": 500.0, "13": 500.0, "17": 903.6, "19": 588.0, "21": 1192.8, "24": 1507.5, "26": 1548.0}], "TÚLIO": [{"2": 2795.2, "3": 5088.0, "4": 4795.2, "6": 500.0, "8": 370.0, "9": 4795.2, "10": 2988.0, "11": 4534.2, "12": 1600.0, "15": 1192.8, "16": 5976.0, "17": 5024.5, "18": 4783.2, "19": 2394.04, "22": 299.93, "23": 6092.8, "26": 2397.6, "30": 4502.4}, {"1": 2700.0, "3": 4192.8, "6": 4590.4, "7": 2002.4, "10": 4387.93, "11": 4795.2, "14": 4598.52, "15": 2000.0, "16": 553.62, "17": 9685.2, "20": 299.93, "22": 2397.6, "23": 2890.16, "27": 1192.8, "28": 700.0, "29": 3785.2, "30": 3590.4, "31": 1795.2}, {"4": 1600.0, "5": 845.68, "10": 6788.0, "11": 299.93, "12": 2740.8, "13": 2397.6, "17": 7597.6, "19": 1795.2, "20": 3288.0, "21": 4791.64, "26": 1000.0}], "RAFAEL": [{"2": 2988.0, "4": 2397.6, "6": 2785.37, "8": 2385.6, "9": 3590.4, "12": 1690.0, "16": 1492.8, "17": 800.0, "19": 2400.0, "23": 4180.8, "24": 2856.23, "26": 1800.0, "30": 3590.4}, {"1": 2397.6, "2": 5055.43, "10": 4877.6, "31": 2988.0}, {"10": 330.01, "24": 1192.8}], "LARISSA": [{"2": 2988.0, "3": 6578.4, "5": 4688.0, "6": 1910.0, "8": 2988.0, "11": 3590.4, "12": 6496.2, "13": 5500.8, "17": 4130.8, "18": 2988.0, "19": 6979.1, "22": 602.4, "23": 1910.4, "25": 195.0, "26": 7185.6, "30": 2397.6}, {"6": 5828.4, "7": 2498.32, "9": 5988.0, "10": 1990.0, "16": 12564.0, "17": 4192.8, "18": 800.0, "20": 2988.0, "23": 5976.0, "29": 1093.8}, {"6": 4971.52, "7": 3590.4, "11": 2795.2, "12": 2397.6, "13": 1576.27, "14": 3040.8, "17": 4795.2, "19": 4190.4, "20": 4190.4, "24": 5727.0, "25": 3741.8, "26": 1948.0}], "EDUARDO": [{"3": 4888.0, "5": 540.0, "9": 5385.6, "10": 4795.2, "11": 4396.2, "13": 2980.0, "15": 6492.8, "16": 4200.0, "18": 6578.4, "19": 2474.76, "22": 3397.6, "23": 299.93, "24": 3205.73, "25": 5385.6, "26": 11657.29, "29": 1795.2}, {"6": 3590.4, "7": 2000.0, "8": 2989.75, "9": 5286.9, "10": 7783.2, "13": 299.93, "15": 500.0, "17": 7680.8, "20": 330.01, "22": 3468.62, "23": 4795.2, "24": 12477.3, "28": 4190.4, "29": 5388.0, "30": 4592.4, "31": 8137.2}, {"2": 1490.0, "7": 3980.0, "10": 3590.4, "14": 4795.2, "17": 5848.08, "20": 299.93, "21": 5388.0, "22": 4764.49, "25": 9588.0, "26": 3590.4}], "RODRIGO": [{"26": 3394.72}, {"17": 2988.0}, {"13": 3488.0, "20": 10378.4, "21": 2390.4, "24": 2988.0, "25": 2988.0}], "PAULO": [{}, {"17": 2988.0, "23": 2397.6, "27": 2168.76, "28": 4795.2, "30": 2739.0, "31": 2480.0}, {"11": 2988.0, "13": 500.0, "17": 5997.6, "20": 4533.92, "24": 1192.8}], "LUIGI": [{}, {"17": 2397.6, "21": 4180.8, "23": 2988.0, "27": 2988.0, "30": 2740.75, "31": 699.08}, {"11": 6593.52, "12": 500.0, "14": 1192.8, "17": 3749.16, "18": 1299.41, "21": 3590.4, "26": 1795.2}], "ALVARO": [{}, {"20": 2988.0, "23": 4795.2}, {"5": 2397.6, "7": 2988.0}]}, "diarioSDR": {"BEATRIZ": [{"1": 2480.0, "2": 2988.0, "3": 8800.0, "8": 2397.6, "9": 990.0, "10": 2988.0, "11": 3590.4, "12": 700.0, "13": 2980.0, "15": 3195.2, "17": 6630.8, "18": 5976.0, "19": 8461.6, "22": 602.4, "24": 4387.6, "26": 15757.29, "30": 7784.2}, {"1": 2397.6, "2": 6564.23, "6": 4590.4, "7": 2988.0, "8": 2989.75, "10": 2900.0, "14": 4795.2, "15": 500.0, "16": 5385.6, "17": 5695.2, "20": 7375.6, "24": 2182.8, "27": 2390.0, "30": 7333.15, "31": 6361.48}, {"7": 2988.0, "11": 299.93, "12": 500.0, "13": 3988.0, "17": 5638.56, "18": 2789.41, "19": 4690.4, "20": 1548.0, "21": 2397.6, "22": 4764.49, "24": 1192.8}], "MICHELLY": [{"2": 3320.8, "3": 6976.0, "4": 959.0, "5": 2240.0, "6": 4783.2, "8": 6168.6, "9": 7933.92, "10": 2397.6, "11": 3159.0, "12": 3895.8, "15": 4783.2, "16": 4613.0, "17": 5922.1, "18": 4014.31, "19": 5183.9, "22": 3533.37, "23": 7098.33, "24": 7061.96, "25": 14556.6, "26": 12585.12, "28": 1798.32, "29": 10669.09, "30": 6601.6}, {"1": 3990.0, "2": 2653.19, "3": 5960.0, "6": 5783.2, "7": 6384.4, "8": 912.0, "9": 7082.1, "10": 2779.93, "13": 299.93, "15": 3590.4, "16": 2988.0, "17": 1490.0, "20": 880.01, "23": 2804.1, "24": 15017.26, "27": 1192.8, "28": 6169.4, "29": 8888.0, "31": 8283.2}, {"1": 200.0, "2": 199.99, "3": 2500.0, "5": 2697.53, "6": 790.0, "7": 3980.0, "10": 1850.01, "12": 500.0, "13": 1000.0, "14": 1192.8, "17": 3986.35, "19": 588.0, "20": 7778.33, "21": 8746.44, "24": 500.0, "25": 4792.8, "26": 1548.0}], "TÚLIO": [{"2": 1795.2, "4": 4795.2, "11": 1795.2, "12": 1600.0, "16": 2988.0, "18": 1795.2, "22": 299.93, "30": 3100.0}, {"3": 3590.4, "11": 4795.2, "15": 1000.0, "17": 4795.2, "20": 299.93, "22": 2397.6, "23": 1192.8, "29": 1795.2}, {"10": 6788.0, "12": 1192.8, "17": 5997.6, "25": 4795.2}], "RODRIGO": [{"2": 1000.0, "10": 2397.6, "12": 3590.4, "15": 1192.8, "18": 3590.4, "23": 2988.0}, {"9": 3590.4, "10": 3590.4, "17": 3590.4, "20": 2460.0, "22": 1795.2, "23": 4795.2, "27": 2988.0, "29": 2988.0, "31": 1795.2}, {"4": 1000.0, "20": 3800.0}], "LEANDRO B.": [{"2": 2988.0, "3": 11170.55, "4": 3387.6, "5": 2988.0, "7": 2397.6, "8": 7848.0, "9": 2397.6, "11": 1795.2, "13": 1910.4, "16": 4480.8, "17": 800.0, "27": 2194.8, "29": 6590.4, "30": 1402.4}, {"1": 2000.0, "3": 1798.32, "4": 2397.6, "6": 6329.4, "7": 602.4, "8": 795.3, "9": 1192.8, "10": 6375.6, "13": 2739.0, "14": 299.0, "15": 5785.2, "16": 553.62, "18": 800.0, "20": 1989.21, "23": 3197.6, "28": 4795.2, "30": 2198.6}, {"4": 600.0, "8": 3590.4, "12": 6343.2, "14": 100.0, "17": 6147.96, "19": 1795.2, "20": 1192.8, "21": 5388.0, "23": 2988.0}], "VITOR": [{"3": 8568.4, "6": 4695.37, "9": 3590.4, "10": 750.0, "13": 8373.6, "15": 2397.6, "18": 3590.4, "19": 3590.4, "22": 3397.6, "23": 2397.6, "26": 4783.2, "30": 3590.4}, {"6": 5190.4, "7": 2498.32, "8": 3207.6, "10": 4887.6, "15": 2397.6, "16": 7188.72, "17": 3590.4, "21": 1192.8, "22": 1673.42, "23": 5385.6, "29": 5437.8}, {"5": 1192.8, "7": 8973.6, "10": 4400.4, "11": 5795.2, "12": 2397.6, "13": 2973.87, "14": 990.0, "17": 2688.12, "20": 2988.0, "24": 7927.3, "26": 2795.2}], "SEM SDR": [{"6": 500.0, "11": 5596.2, "15": 597.0, "19": 2988.0, "27": 500.0, "30": 1795.2}, {"1": 2397.6, "3": 602.4, "7": 500.0, "10": 600.0, "15": 1000.0, "23": 500.0}, {"3": 597.0, "17": 600.0, "26": 3590.4}], "RAFAEL": [{"8": 1192.8}, {"31": 1192.8}, {}], "CARIOCA": [{"9": 5385.6, "11": 3590.4, "18": 3590.4}, {"8": 2980.0, "17": 3590.4, "23": 2988.0, "31": 3517.92}, {"1": 500.0, "4": 2988.0, "10": 750.0, "13": 500.0, "14": 1697.36, "26": 1948.0}], "JÚLIA": [{"10": 2331.7}, {}, {}], "EDUARDO": [{"15": 900.0}, {"31": 2595.2}, {"2": 1490.0}], "LEANDRO PT": [{"16": 3590.4, "30": 4978.0}, {"11": 2397.6, "30": 8576.2, "31": 2397.6}, {"2": 2172.0, "14": 1127.76, "15": 2397.6, "21": 2266.96}], "LARISSA": [{"26": 2390.4}, {}, {}], "KASSIA INDICAÇÃO": [{}, {"6": 1638.0}, {}], "LARA": [{}, {"9": 1795.2, "10": 1795.2, "17": 5135.6, "20": 2988.0, "21": 2988.0, "25": 3590.4, "27": 2168.76, "29": 1990.0, "30": 11124.6, "31": 5291.64}, {"7": 1795.2, "10": 500.0, "11": 1795.2, "20": 4533.92}], "RENOVAÇÃO": [{}, {"14": 4299.52}, {}], "GUSTAVO": [{}, {"17": 5976.0, "23": 7082.96, "28": 545.75, "31": 2462.0}, {"6": 4971.52, "10": 4591.0, "14": 9665.0, "17": 14778.4, "20": 3590.4, "24": 1192.8, "25": 2988.0}], "LUIGI": [{}, {"17": 2397.6}, {}], "IASMIN": [{}, {}, {"5": 545.75, "11": 4786.32, "13": 1795.2, "17": 903.6, "20": 2988.0, "21": 4783.2, "24": 2988.0, "25": 3741.8}], "MISAEL": [{}, {}, {"13": 500.0}]}, "diarioTotal": [{"1": 2480.0, "2": 12092.0, "3": 35514.95, "4": 9141.8, "5": 5228.0, "6": 9978.57, "7": 2397.6, "8": 17607.0, "9": 20297.52, "10": 10864.9, "11": 19526.4, "12": 9786.2, "13": 13264.0, "15": 13065.8, "16": 15672.2, "17": 13352.9, "18": 22556.71, "19": 20223.9, "22": 7833.3, "23": 12483.93, "24": 11449.56, "25": 14556.6, "26": 35516.01, "27": 2694.8, "28": 1798.32, "29": 17259.49, "30": 29251.8}, {"1": 10785.2, "2": 9217.42, "3": 11951.12, "4": 2397.6, "6": 23531.4, "7": 12973.12, "8": 10884.65, "9": 13660.5, "10": 22928.73, "11": 7192.8, "13": 3038.93, "14": 9393.72, "15": 14273.2, "16": 16115.94, "17": 36260.8, "18": 800.0, "20": 15992.75, "21": 4180.8, "22": 5866.22, "23": 27946.26, "24": 17200.06, "25": 3590.4, "27": 8739.56, "28": 11510.35, "29": 21099.0, "30": 29232.55, "31": 33897.04}, {"1": 700.0, "2": 3861.99, "3": 3097.0, "4": 4588.0, "5": 4436.08, "6": 5761.52, "7": 17736.8, "8": 3590.4, "10": 18879.41, "11": 12676.65, "12": 10933.6, "13": 10757.07, "14": 14772.92, "15": 2397.6, "17": 40740.59, "18": 2789.41, "19": 7073.6, "20": 28419.45, "21": 23582.2, "22": 4764.49, "23": 2988.0, "24": 13800.9, "25": 16317.8, "26": 9881.6}], "reembolsoCloser": {"LUCCAS": [{"2": 1}, {}, {}], "TÚLIO": [{"5": 1, "8": 1}, {"28": 1}, {"10": 2}], "LARISSA": [{"9": 1}, {"27": 2, "28": 1, "30": 1}, {}], "LUIGI": [{}, {"16": 1, "31": 1}, {"13": 1, "17": 1}], "LEANDRO PT": [{}, {"17": 1}, {"3": 1}], "EDUARDO": [{}, {"28": 1, "30": 1}, {}]}, "reembolsoSDR": {"BEATRIZ": [{"2": 1}, {}, {}], "LEANDRO B.": [{"5": 1, "8": 1}, {}, {"13": 1}], "MICHELLY": [{"9": 1}, {"17": 1, "27": 1, "28": 2, "30": 1}, {"3": 1}], "LARA": [{}, {"16": 1, "27": 1}, {}], "VITOR": [{}, {"28": 1, "30": 1}, {}], "CARIOCA": [{}, {"31": 1}, {}], "GUSTAVO": [{}, {}, {"10": 2}], "IASMIN": [{}, {}, {"17": 1}]}};
 
 const $ = id => document.getElementById(id);
 const fmtMoeda = n => 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -243,9 +344,19 @@ const fmtNum = n => n.toLocaleString('pt-BR');
 // remove acentos para permitir buscar "tulio" e encontrar "TÚLIO"
 const normaliza = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const CORES_MEDALHA = ['var(--ouro)','var(--prata)','var(--bronze)'];
+const NOMES_MES = {janeiro:1,fevereiro:2,março:3,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
 
-// Estado: quais meses (índices 0,1,2) estão selecionados
-const st = { meses: new Set([0,1,2]) };
+function parseMesLabel(label){
+  // "Agosto/26" -> {ano:2026, mes:8}
+  const [nome, anoCurto] = label.split('/');
+  const mes = NOMES_MES[nome.toLowerCase()];
+  const ano = 2000 + parseInt(anoCurto, 10);
+  return { ano, mes };
+}
+function ultimoDiaDoMes(ano, mes){ return new Date(ano, mes, 0).getDate(); }
+
+// Estado: quais meses estão selecionados + filtro de dias (aplicado dentro de cada mês selecionado)
+const st = { meses: new Set([0,1,2]), diaIni: 1, diaFim: 31 };
 
 // ── Monta os toggles de mês ──
 function montaToggles(){
@@ -261,6 +372,7 @@ function montaToggles(){
         st.meses.add(i);
       }
       b.classList.toggle('ativo', st.meses.has(i));
+      atualizaLimitesDias();
       render();
     });
     cont.appendChild(b);
@@ -270,29 +382,192 @@ function montaToggles(){
 $('limpar').addEventListener('click', ()=>{
   st.meses = new Set([0,1,2]);
   document.querySelectorAll('.chip-mes').forEach(c=>c.classList.add('ativo'));
+  atualizaLimitesDias();
   render();
 });
 
-// ── Cálculo de totais por pessoa, no recorte de meses selecionado ──
-function totalPessoa(valores){
+// ── Filtro de dias: recolhido por padrão, só aparece quando a pessoa clica em
+// "Filtrar por dia". Usa inputs de calendário nativos, limitados ao mês de
+// referência (o primeiro mês marcado no filtro de período). ──
+function boundsMesReferenciaSelecionado(){
+  const idx = [...st.meses].sort((a,b)=>a-b)[0];
+  const {ano, mes} = parseMesLabel(DADOS.meses[idx]);
+  return { ano, mes, diasNoMes: ultimoDiaDoMes(ano, mes) };
+}
+function isoDate(ano,mes,dia){ return `${ano}-${String(mes).padStart(2,'0')}-${String(dia).padStart(2,'0')}`; }
+
+function montaFiltroDias(){
+  const inputIni = $('diaIniCal'), inputFim = $('diaFimCal');
+  const botaoToggle = $('toggleFiltroDias'), painel = $('painelDias'), botaoLimpar = $('limparDias');
+
+  function atualizaLimites(){
+    const { ano, mes, diasNoMes } = boundsMesReferenciaSelecionado();
+    const min = isoDate(ano,mes,1), max = isoDate(ano,mes,diasNoMes);
+    inputIni.min = min; inputIni.max = max;
+    inputFim.min = min; inputFim.max = max;
+    inputIni.value = isoDate(ano, mes, Math.min(st.diaIni, diasNoMes));
+    inputFim.value = isoDate(ano, mes, Math.min(st.diaFim, diasNoMes));
+  }
+  atualizaLimitesDias = atualizaLimites; // exposto para montaToggles/limpar atualizarem o calendário
+
+  function atualizaRotuloToggle(){
+    const filtrado = !(st.diaIni===1 && st.diaFim===31);
+    botaoToggle.classList.toggle('ativo', filtrado);
+    botaoToggle.textContent = filtrado ? `📅 Dias ${st.diaIni}–${st.diaFim}` : '📅 Filtrar por dia';
+  }
+  atualizaRotuloToggleFn = atualizaRotuloToggle;
+
+  botaoToggle.addEventListener('click', ()=>{
+    const abrindo = painel.hidden;
+    painel.hidden = !painel.hidden;
+    if(abrindo) atualizaLimites();
+  });
+
+  inputIni.addEventListener('change', ()=>{
+    if(!inputIni.value) return;
+    st.diaIni = new Date(inputIni.value+'T00:00:00').getDate();
+    if(st.diaIni>st.diaFim){ st.diaFim = st.diaIni; }
+    atualizaLimites();
+    atualizaRotuloToggle();
+    render();
+  });
+  inputFim.addEventListener('change', ()=>{
+    if(!inputFim.value) return;
+    st.diaFim = new Date(inputFim.value+'T00:00:00').getDate();
+    if(st.diaFim<st.diaIni){ st.diaIni = st.diaFim; }
+    atualizaLimites();
+    atualizaRotuloToggle();
+    render();
+  });
+  botaoLimpar.addEventListener('click', ()=>{
+    st.diaIni = 1; st.diaFim = 31;
+    atualizaLimites();
+    atualizaRotuloToggle();
+    render();
+  });
+
+  atualizaLimites();
+  atualizaRotuloToggle();
+}
+let atualizaLimitesDias = ()=>{};
+let atualizaRotuloToggleFn = ()=>{};
+
+// ── Soma o valor de uma pessoa dentro do recorte atual (meses + dias) ──
+function totalPessoa(nome, mapaDiario){
+  const porMes = mapaDiario[nome];
+  if(!porMes) return 0;
   let t=0;
-  st.meses.forEach(i=> t += (valores[i]||0));
+  st.meses.forEach(idx=>{
+    const dias = porMes[idx];
+    if(!dias) return;
+    for(const diaStr in dias){
+      const dia = +diaStr;
+      if(dia>=st.diaIni && dia<=st.diaFim) t += dias[diaStr];
+    }
+  });
   return t;
 }
+
+// ── Soma o valor de uma equipe inteira dentro do recorte atual ──
+function totalEquipe(lista, mapaDiario){
+  return lista.reduce((s,nome)=> s + totalPessoa(nome, mapaDiario), 0);
+}
+
+// ── Meta do período: sempre o mês inteiro, não é afetada pelo filtro de dias ──
 function metaPeriodo(){
   let t=0;
   st.meses.forEach(i=> t += DADOS.metas[i]);
   return t;
 }
-function rankingEquipe(lista, valoresMap){
-  return lista.map(nome=>[nome, totalPessoa(valoresMap[nome])])
-    .sort((a,b)=>b[1]-a[1]);
+
+// ── Quantidade de dias "decorridos" (já ocorridos) dentro de um mês, considerando
+// a data de atualização para o mês corrente e o mês completo para meses já fechados ──
+function diasElapsedNoMes(idx){
+  const {ano, mes} = parseMesLabel(DADOS.meses[idx]);
+  const diasNoMes = ultimoDiaDoMes(ano, mes);
+  const inputVal = $('dataAtualizacao').value;
+  if(inputVal){
+    const [aY, aM, aD] = inputVal.split('-').map(Number);
+    if(ano===aY && mes===aM) return Math.min(Math.max(aD,1), diasNoMes); // mês corrente: só até hoje
+    if(ano>aY || (ano===aY && mes>aM)) return 0; // mês ainda no futuro
+  }
+  return diasNoMes; // mês já fechado (passado): conta inteiro
+}
+
+// ── Quantidade de dias efetivamente contados no filtro atual (para a média diária) —
+// conta dias corridos (mesmo sem venda), nunca dias futuros que ainda não aconteceram ──
+function diasNoFiltro(){
+  let n=0;
+  st.meses.forEach(idx=>{
+    const elapsed = diasElapsedNoMes(idx);
+    const ini = Math.max(st.diaIni, 1);
+    const fim = Math.min(st.diaFim, elapsed);
+    if(fim>=ini) n += (fim-ini+1);
+  });
+  return n;
+}
+
+function rankingEquipe(lista, mapaDiario){
+  return lista.map(nome=>[nome, totalPessoa(nome, mapaDiario)]).sort((a,b)=>b[1]-a[1]);
+}
+
+// ── Ritmo do mês corrente (dias restantes / necessário por dia) ──
+// Independente dos filtros de período e de dias: sempre calcula sobre o mês inteiro em que a
+// "data de atualização" cai — é só uma informação de referência, não um filtro.
+function calcRitmo(){
+  const inputVal = $('dataAtualizacao').value; // "YYYY-MM-DD"
+  if(!inputVal) return null;
+  const [anoStr, mesStr, diaStr] = inputVal.split('-');
+  const anoRef = parseInt(anoStr,10), mesRef = parseInt(mesStr,10), diaRef = parseInt(diaStr,10);
+
+  const idx = DADOS.meses.findIndex(label=>{
+    const p = parseMesLabel(label);
+    return p.ano===anoRef && p.mes===mesRef;
+  });
+  if(idx === -1) return { semReferencia:true };
+
+  const diasNoMes = ultimoDiaDoMes(anoRef, mesRef);
+  const diasDecorridos = Math.min(Math.max(diaRef,1), diasNoMes); // inclui o dia corrente
+  const diasRestantes = diasNoMes - diasDecorridos + 1; // inclusive hoje
+
+  const totalMes = DADOS.closers.reduce((s,n)=>{
+    const dias = (DADOS.diarioCloser[n]||[])[idx] || {};
+    return s + Object.values(dias).reduce((a,b)=>a+b,0);
+  },0);
+  const metaMes = DADOS.metas[idx];
+  const faltaMes = metaMes - totalMes;
+  const necessarioPorDia = faltaMes > 0.01 ? faltaMes/diasRestantes : 0;
+
+  return { idx, mesLabel:DADOS.meses[idx], diasNoMes, diasDecorridos, diasRestantes, totalMes, metaMes, faltaMes, necessarioPorDia };
+}
+
+// ── Quanto fizemos ontem: dia anterior à data de atualização ──
+function calcOntem(){
+  const inputVal = $('dataAtualizacao').value;
+  if(!inputVal) return null;
+  const [anoStr, mesStr, diaStr] = inputVal.split('-');
+  const dataRef = new Date(parseInt(anoStr,10), parseInt(mesStr,10)-1, parseInt(diaStr,10));
+  const ontem = new Date(dataRef);
+  ontem.setDate(ontem.getDate()-1);
+  const anoOntem = ontem.getFullYear(), mesOntem = ontem.getMonth()+1, diaOntem = ontem.getDate();
+
+  const idx = DADOS.meses.findIndex(label=>{
+    const p = parseMesLabel(label);
+    return p.ano===anoOntem && p.mes===mesOntem;
+  });
+  if(idx === -1) return { semReferencia:true, ontem };
+
+  const valor = DADOS.diarioTotal[idx] ? DADOS.diarioTotal[idx][String(diaOntem)] : undefined;
+  if(valor === undefined) return { semDado:true, ontem, dia:diaOntem, mesLabel: DADOS.meses[idx] };
+
+  return { idx, mesLabel: DADOS.meses[idx], dia: diaOntem, valor, ontem };
 }
 
 // ── Slats (barras de ranking com posição) — cada linha guarda o nome em
 // minúsculo em data-nome para permitir filtrar por busca sem recalcular posições ──
-function slats(el, pares){
+function slats(el, pares, formatador){
   el.innerHTML='';
+  formatador = formatador || fmtMoeda;
   if(!pares.length || pares.every(p=>p[1]===0)){ el.innerHTML='<div class="vazio">Sem dados para o período selecionado.</div>'; return; }
   const max = pares[0][1] || 1;
   pares.forEach(([nome,v],i)=>{
@@ -301,7 +576,7 @@ function slats(el, pares){
     row.dataset.nome = normaliza(nome);
     row.innerHTML = `<div class="slat-nome" title="${nome}"><span class="rank-pos">${i+1}º</span> ${nome}</div>
       <div class="slat-trilho"><div class="slat-barra" style="width:${(v/max*100).toFixed(1)}%"></div></div>
-      <div class="slat-num">${fmtMoeda(v)}</div>`;
+      <div class="slat-num">${formatador(v)}</div>`;
     el.appendChild(row);
   });
 }
@@ -328,12 +603,22 @@ function ligaBusca(inputId, limparId, elId, infoId){
 const buscaCloser = ligaBusca('buscaCloser','limpaBuscaCloser','gCloser','infoCloser');
 const buscaSdr = ligaBusca('buscaSdr','limpaBuscaSdr','gSdr','infoSdr');
 
-// ── Divergência Closer x SDR por mês (dentro do recorte selecionado) ──
+// ── Divergência Closer x SDR por mês, dentro do recorte de dias atual ──
 function calcDivergencias(){
   const divergentes = [];
   [...st.meses].sort().forEach(i=>{
-    const totC = DADOS.closers.reduce((s,n)=>s+(DADOS.valoresCloser[n][i]||0),0);
-    const totS = DADOS.sdrs.reduce((s,n)=>s+(DADOS.valoresSDR[n][i]||0),0);
+    const totC = DADOS.closers.reduce((s,n)=>{
+      const dias = (DADOS.diarioCloser[n]||[])[i] || {};
+      let sub=0;
+      for(const d in dias){ if(+d>=st.diaIni && +d<=st.diaFim) sub+=dias[d]; }
+      return s+sub;
+    },0);
+    const totS = DADOS.sdrs.reduce((s,n)=>{
+      const dias = (DADOS.diarioSDR[n]||[])[i] || {};
+      let sub=0;
+      for(const d in dias){ if(+d>=st.diaIni && +d<=st.diaFim) sub+=dias[d]; }
+      return s+sub;
+    },0);
     const diff = totC - totS;
     if(Math.abs(diff) > 0.01) divergentes.push({ mes: DADOS.meses[i], totC, totS, diff });
   });
@@ -343,10 +628,11 @@ function calcDivergencias(){
 // ── Render geral ──
 function render(){
   const nMeses = st.meses.size;
-  $('contagem').innerHTML = `<strong>${nMeses}</strong> mês${nMeses>1?'es':''} selecionado${nMeses>1?'s':''} · ${[...st.meses].sort().map(i=>DADOS.meses[i]).join(', ')}`;
+  const filtroDiasTexto = (st.diaIni===1 && st.diaFim===31) ? '' : ` · dias ${st.diaIni}–${st.diaFim}`;
+  $('contagem').innerHTML = `<strong>${nMeses}</strong> mês${nMeses>1?'es':''} selecionado${nMeses>1?'s':''} · ${[...st.meses].sort().map(i=>DADOS.meses[i]).join(', ')}${filtroDiasTexto}`;
 
-  const rankCloser = rankingEquipe(DADOS.closers, DADOS.valoresCloser).filter(([,v])=>v>0);
-  const rankSdr = rankingEquipe(DADOS.sdrs, DADOS.valoresSDR).filter(([,v])=>v>0);
+  const rankCloser = rankingEquipe(DADOS.closers, DADOS.diarioCloser).filter(([,v])=>v>0);
+  const rankSdr = rankingEquipe(DADOS.sdrs, DADOS.diarioSDR).filter(([,v])=>v>0);
   const totCloser = rankCloser.reduce((s,[,v])=>s+v,0);
   const meta = metaPeriodo();
   const falta = meta - totCloser;
@@ -354,7 +640,7 @@ function render(){
   $('kMeta').textContent = fmtMoeda(meta);
   $('kMetaDet').textContent = [...st.meses].sort().map(i=>DADOS.meses[i]).join(' + ');
   $('kTotal').textContent = fmtMoeda(totCloser);
-  $('kTotalDet').textContent = meta ? `${(totCloser/meta*100).toFixed(1)}% da meta` : '—';
+  $('kTotalDet').textContent = (meta ? `${(totCloser/meta*100).toFixed(1)}% da meta` : '—') + filtroDiasTexto;
   if(falta > 0.01){
     $('kFalta').textContent = fmtMoeda(falta);
     $('kFaltaDet').textContent = 'para atingir 100% da meta';
@@ -364,12 +650,25 @@ function render(){
   }
   $('kAtg').textContent = meta ? (totCloser/meta*100).toFixed(1)+'%' : '—';
 
+  const nDias = diasNoFiltro();
+  $('kMediaFiltro').textContent = nDias ? fmtMoeda(totCloser/nDias) + '/dia' : '—';
+  $('kMediaFiltroDet').textContent = nDias ? `${nDias} dia${nDias>1?'s':''} corrido${nDias>1?'s':''} no recorte atual` : 'sem dias no recorte atual';
+
   slats($('gCloser'), rankCloser);
   slats($('gSdr'), rankSdr);
   buscaCloser.setTotal(rankCloser.length);
   buscaSdr.setTotal(rankSdr.length);
   buscaCloser.aplica();
   buscaSdr.aplica();
+
+  // ── Reembolsos, respeitando o mesmo recorte de meses + dias ──
+  const rankReembCloser = rankingEquipe(DADOS.closers, DADOS.reembolsoCloser).filter(([,v])=>v>0);
+  const rankReembSdr = rankingEquipe(DADOS.sdrs, DADOS.reembolsoSDR).filter(([,v])=>v>0);
+  const totReembolsos = rankReembCloser.reduce((s,[,v])=>s+v,0);
+  const fmtContagem = v => `${v} pedido${v!==1?'s':''}`;
+  $('reembolsosSub').textContent = `${totReembolsos} pedido${totReembolsos!==1?'s':''} pago${totReembolsos!==1?'s':''} e cancelado${totReembolsos!==1?'s':''} em até 7 dias, no período selecionado — não entram no total vendido`;
+  slats($('gReembolsoCloser'), rankReembCloser, fmtContagem);
+  slats($('gReembolsoSdr'), rankReembSdr, fmtContagem);
 
   // Alerta de divergência entre total de Closers e total de SDRs por mês
   const divergentes = calcDivergencias();
@@ -382,10 +681,159 @@ function render(){
     alerta.style.display = 'none';
     alerta.innerHTML = '';
   }
+
+  renderRitmo();
 }
 
+// ── Renderiza os cartões de ritmo (dias restantes / necessário por dia / quanto ontem) ──
+function renderRitmo(){
+  const bloco = $('blocoRitmo');
+  const r = calcRitmo();
+
+  if(!r){
+    bloco.style.display = 'none';
+  } else if(r.semReferencia){
+    bloco.style.display = 'grid';
+    $('kDias').textContent = '—';
+    $('kDiasDet').textContent = 'data fora dos meses disponíveis';
+    $('kNecessario').textContent = '—';
+    $('kNecessarioDet').textContent = '';
+  } else {
+    bloco.style.display = 'grid';
+    $('kDias').textContent = `${r.diasRestantes} dia${r.diasRestantes!==1?'s':''}`;
+    $('kDiasDet').textContent = `até 31 · ${r.mesLabel} (dia ${r.diasDecorridos} de ${r.diasNoMes}, hoje incluso)`;
+
+    if(r.faltaMes > 0.01){
+      $('kNecessario').textContent = fmtMoeda(r.necessarioPorDia) + '/dia';
+      $('kNecessarioDet').textContent = `para bater a meta de ${r.mesLabel} nos dias restantes`;
+    } else {
+      $('kNecessario').textContent = 'Meta batida';
+      $('kNecessarioDet').textContent = `superada em ${fmtMoeda(-r.faltaMes)}`;
+    }
+  }
+
+  // ── Quanto fizemos ontem ──
+  const o = calcOntem();
+  if(!o){
+    $('kOntem').textContent = '—';
+    $('kOntemDet').textContent = '';
+  } else if(o.semReferencia){
+    $('kOntem').textContent = '—';
+    $('kOntemDet').textContent = 'fora dos meses disponíveis';
+  } else if(o.semDado){
+    $('kOntem').textContent = fmtMoeda(0);
+    $('kOntemDet').textContent = `dia ${o.dia||''} · ${o.mesLabel||''} · sem registro`.trim();
+  } else {
+    $('kOntem').textContent = fmtMoeda(o.valor);
+    $('kOntemDet').textContent = `dia ${o.dia} · ${o.mesLabel}`;
+  }
+
+  renderGraficoLinha();
+}
+
+// ── Gráfico de linha: variação diária do mês de referência (data de atualização) ──
+function renderGraficoLinha(){
+  const svg = $('graficoLinha');
+  const r = calcRitmo();
+  svg.innerHTML = '';
+
+  if(!r || r.semReferencia){
+    $('graficoLinhaSub').textContent = 'sem mês de referência para o período informado';
+    svg.innerHTML = '<text x="460" y="130" text-anchor="middle" fill="var(--tinta-2)" font-size="15" font-family="Public Sans">Informe uma data dentro dos meses disponíveis.</text>';
+    return;
+  }
+
+  const dados = DADOS.diarioTotal[r.idx] || {};
+  const dias = Object.keys(dados).map(Number).sort((a,b)=>a-b);
+  const ultimoDiaComDado = dias.length ? dias[dias.length-1] : r.diasDecorridos;
+  $('graficoLinhaSub').textContent = `evolução dia a dia — ${r.mesLabel} (até o dia ${ultimoDiaComDado})`;
+
+  if(!dias.length){
+    svg.innerHTML = '<text x="460" y="130" text-anchor="middle" fill="var(--tinta-2)" font-size="15" font-family="Public Sans">Sem dados diários para este mês.</text>';
+    return;
+  }
+
+  const W=920,H=260,mL=70,mR=18,mT=18,mB=34;
+  const iw=W-mL-mR, ih=H-mT-mB;
+  const valores = dias.map(d=>dados[d]);
+  const maxY = Math.max(...valores, 1);
+  const x = i => mL + (dias.length===1 ? iw/2 : iw*i/(dias.length-1));
+  const y = v => mT + ih - (v/maxY)*ih;
+
+  let g='';
+  const passos=4;
+  for(let i=0;i<=passos;i++){
+    const v=Math.round(maxY/passos*i), yy=y(v);
+    g+=`<line x1="${mL}" y1="${yy.toFixed(1)}" x2="${W-mR}" y2="${yy.toFixed(1)}" stroke="#D7DECD" stroke-width="1"/>`;
+    g+=`<text x="${mL-10}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="11.5" fill="#5B6B54" font-family="Public Sans">${fmtNum(v)}</text>`;
+  }
+
+  const pontos = dias.map((d,i)=>`${x(i).toFixed(1)},${y(dados[d]).toFixed(1)}`).join(' ');
+  const areaPontos = `${x(0).toFixed(1)},${y(0).toFixed(1)} ${pontos} ${x(dias.length-1).toFixed(1)},${y(0).toFixed(1)}`;
+  g += `<polygon points="${areaPontos}" fill="#3E5C37" opacity="0.10"/>`;
+  g += `<polyline points="${pontos}" fill="none" stroke="#3E5C37" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  const passoLabel = Math.max(1, Math.ceil(dias.length/10));
+  dias.forEach((d,i)=>{
+    g += `<circle cx="${x(i).toFixed(1)}" cy="${y(dados[d]).toFixed(1)}" r="3.2" fill="#3E5C37" data-i="${i}" class="ptoLinha"/>`;
+    if(i % passoLabel === 0 || i===dias.length-1){
+      g += `<text x="${x(i).toFixed(1)}" y="${H-10}" text-anchor="middle" font-size="11" fill="#1C2419" font-family="Public Sans">${d}</text>`;
+    }
+  });
+
+  svg.innerHTML = g;
+
+  const tip = $('tipGraficoLinha');
+  svg.querySelectorAll('.ptoLinha').forEach(pt=>{
+    pt.addEventListener('mousemove', ()=>{
+      const i = +pt.dataset.i;
+      const d = dias[i];
+      const rectSvg = svg.getBoundingClientRect();
+      const bbox = pt.getBoundingClientRect();
+      tip.innerHTML = `<strong>Dia ${d}</strong> · ${fmtMoeda(dados[d])}`;
+      tip.style.left = (bbox.left - rectSvg.left + bbox.width/2) + 'px';
+      tip.style.top = (bbox.top - rectSvg.top) + 'px';
+      tip.style.opacity = 1;
+    });
+    pt.addEventListener('mouseleave', ()=>{ tip.style.opacity=0; });
+  });
+}
+
+// ── Data de atualização: apenas informativa (não filtra nada), default = hoje.
+// Serve de referência para os cartões de ritmo e também define, na carga inicial,
+// qual mês fica marcado sozinho no filtro de período. ──
+function mesCorrentePorData(inputVal){
+  if(!inputVal) return -1;
+  const [anoStr, mesStr] = inputVal.split('-');
+  const ano = parseInt(anoStr,10), mes = parseInt(mesStr,10);
+  return DADOS.meses.findIndex(label=>{
+    const p = parseMesLabel(label);
+    return p.ano===ano && p.mes===mes;
+  });
+}
+
+(function initDataAtualizacao(){
+  const input = $('dataAtualizacao');
+  const hoje = new Date();
+  const iso = hoje.getFullYear() + '-' + String(hoje.getMonth()+1).padStart(2,'0') + '-' + String(hoje.getDate()).padStart(2,'0');
+  input.value = iso;
+  $('hdrDataAtualizacao').textContent = input.value.split('-').reverse().join('/');
+  input.addEventListener('change', ()=>{
+    $('hdrDataAtualizacao').textContent = input.value ? input.value.split('-').reverse().join('/') : '–';
+    renderRitmo();
+  });
+
+  // Visualização padrão: apenas o mês corrente marcado no filtro de período
+  const idxCorrente = mesCorrentePorData(iso);
+  if(idxCorrente !== -1){
+    st.meses = new Set([idxCorrente]);
+  }
+})();
+
 montaToggles();
+montaFiltroDias();
 render();
+
 </script>
 </body>
 </html>
